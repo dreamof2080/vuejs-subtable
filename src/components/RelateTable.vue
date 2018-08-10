@@ -33,7 +33,7 @@
           <template slot-scope="scope">
             <el-input v-model="scope.row.flowid" v-show="false" size="mini"></el-input>
             <el-input placeholder="请选择" v-model="scope.row.flowName" size="small">
-              <el-button slot="append" icon="el-icon-search" @click="handleWorkflowBrowser(scope.$index)" size="small"></el-button>
+              <el-button slot="append" icon="el-icon-search" @click="handleClick(scope.$index)" size="small"></el-button>
             </el-input>
           </template>
         </el-table-column>
@@ -189,9 +189,9 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleWorkflowBrowser(index){
+      handleClick(index){
+        this.$store.commit('switch_workflowDialog');
         this.currentIndex = index;
-        this.$emit('browserClick',index)
       }
     },
     watch:{

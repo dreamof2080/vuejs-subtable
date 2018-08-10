@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="showThis">
+  <el-dialog :visible.sync="show">
     <el-container>
       <el-header>
         <el-form :inline="true" :model="searchForm" class="demo-form-inline">
@@ -19,7 +19,7 @@
             ref="singleTable"
             :data="tableData3"
             highlight-current-row
-            @current-change="handleCurrentChange"
+            @row-click="handleCurrentChange"
             height="400"
             style="width: 100%">
           <el-table-column
@@ -47,10 +47,8 @@
 
 <script>
   export default {
-    props:['showBrowser'],
     data() {
       return {
-        showThis: false,
         tableData3: [{
           flowid:'1',
           flowName:'差旅费报销',
@@ -84,7 +82,6 @@
           flowName:'加班申请',
           moduleName:'人事管理'
         }],
-        currentRow: null,
         searchForm: {
           searchFlowName: '',
           searchModuleName: ''
@@ -93,23 +90,21 @@
     },
     methods: {
       handleCurrentChange(val) {
-        this.currentRow = val;
-        this.showThis = false;
+        this.$emit('browserClick',val);
+        this.$store.commit('switch_workflowDialog');
       },
       onSubmit() {
         console.log('submit!');
       }
     },
-    mounted(){
-      this.showThis = this.showBrowser
-    },
-    watch:{
-      showThis:function (newV, oldV) {
-        this.$emit('closeDialog',newV,this.currentRow);
-        this.currentRow = null;
-      },
-      showBrowser:function (newV, oldV) {
-        this.showThis = newV;
+    computed:{
+      show:{
+        get(){
+          return this.$store.state.workflowBrowser.show;
+        },
+        set(){
+          this.$store.commit('switch_workflowDialog');
+        }
       }
     }
   }

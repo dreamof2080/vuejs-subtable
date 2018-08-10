@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <relate-table :workflowRowData="workflowRowData" @browserClick="handleBrowser"/>
-    <workflow-browser :showBrowser="showBrowser" @closeDialog="closeDialog"/>
+    <relate-table :workflowRowData="workflowRowData"/>
+    <workflow-browser @browserClick="handleWorkflowRowData"/>
   </div>
 </template>
 
@@ -13,7 +13,6 @@ export default {
   name: 'app',
   data(){
     return{
-      showBrowser:false,
       workflowRowData:null
     }
   },
@@ -22,14 +21,8 @@ export default {
     'workflow-browser': WorkflowBrowser
   },
   methods:{
-    handleBrowser(index){
-      this.showBrowser = true;
-    },
-    closeDialog(data,workflowRow){
-      if (workflowRow!=null){
-        this.workflowRowData = workflowRow;
-      }
-      this.showBrowser = data;
+    handleWorkflowRowData(workflowRow){
+      this.workflowRowData = workflowRow;
     }
   }
 }

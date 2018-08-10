@@ -31,8 +31,8 @@
             label="关联流程"
             width="220">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.flowid" v-show="false" size="mini"></el-input>
-            <el-input placeholder="请选择" v-model="scope.row.flowName" size="small">
+            <el-input v-model="scope.row.workflowid" v-show="false" size="mini"></el-input>
+            <el-input placeholder="请选择" v-model="scope.row.workflowName" size="small">
               <el-button slot="append" icon="el-icon-search" @click="handleClick(scope.$index)" size="small"></el-button>
             </el-input>
           </template>
@@ -108,24 +108,24 @@
       return {
         details: [{
           id:1,
-          flowid: '',
-          flowName:'',
+          workflowid: '',
+          workflowName:'',
           formType: '1',
           formid: '111',
           fieldid: '111',
           condition: 'requestbase.isdelete=0'
         }, {
           id:2,
-          flowid: '',
-          flowName:'',
+          workflowid: '',
+          workflowName:'',
           formType: '0',
           formid: '111',
           fieldid: '222',
           condition: 'requestbase.isdelete=0'
         }, {
           id:3,
-          flowid: '',
-          flowName:'',
+          workflowid: '',
+          workflowName:'',
           formType: '0',
           formid: '111',
           fieldid: '111',
@@ -170,8 +170,8 @@
       handleAdd() {
         this.details.push({
           id: 99,
-          flowid: '',
-          flowName:'',
+          workflowid: '',
+          workflowName:'',
           formType: '',
           formid: '111',
           fieldid: '111',
@@ -196,8 +196,8 @@
     },
     watch:{
       workflowRowData:function (newData,oldData) {
-        this.details[this.currentIndex].flowid = newData.flowid;
-        this.details[this.currentIndex].flowName = newData.flowName;
+        this.details[this.currentIndex].workflowid = newData.workflowid;
+        this.details[this.currentIndex].workflowName = newData.workflowName;
       }
     }
   }

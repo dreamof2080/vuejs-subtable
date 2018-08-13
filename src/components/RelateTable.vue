@@ -58,7 +58,7 @@
               label="表单名称"
               width="180">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.formid" placeholder="请选择" size="small">
+              <el-select v-model="scope.row.formid" placeholder="请选择" size="small" @focus="handleFormidClick(scope.$index)">
                 <el-option
                     v-for="item in formids"
                     :key="item.value"
@@ -74,7 +74,7 @@
             label="关联字段"
             width="180">
           <template slot-scope="scope">
-            <el-select v-model="scope.row.fieldid" placeholder="请选择" size="small">
+            <el-select v-model="scope.row.fieldid" placeholder="请选择" size="small" @focus="handleFieldClick(scope.$index)">
               <el-option
                   v-for="item in fieldids"
                   :key="item.value"
@@ -110,7 +110,7 @@
           id:1,
           workflowid: '',
           workflowName:'',
-          formType: '1',
+          formType: 1,
           formid: '111',
           fieldid: '111',
           condition: 'requestbase.isdelete=0'
@@ -118,7 +118,7 @@
           id:2,
           workflowid: '',
           workflowName:'',
-          formType: '0',
+          formType: 0,
           formid: '111',
           fieldid: '222',
           condition: 'requestbase.isdelete=0'
@@ -126,32 +126,23 @@
           id:3,
           workflowid: '',
           workflowName:'',
-          formType: '0',
+          formType: 0,
           formid: '111',
           fieldid: '111',
           condition: 'requestbase.isdelete=0'
         }],
         formTypeOptions:[
           {
-            value:'0',
+            value:0,
             label:'主表'
           },
           {
-            value:'1',
+            value:1,
             label:'子表'
           }
         ],
         multipleSelection: [],
-        formids:[
-          {
-            value:'111',
-            label:'报销主表'
-          },
-          {
-            value:'222',
-            label:'报销子表'
-          }
-        ],
+        formids:[],
         fieldids:[
           {
             value:'111',
@@ -169,13 +160,13 @@
     methods:{
       handleAdd() {
         this.details.push({
-          id: 99,
-          workflowid: '',
-          workflowName:'',
-          formType: '',
-          formid: '111',
-          fieldid: '111',
-          condition: 'requestbase.isdelete=0'
+          id: null,
+          workflowid: null,
+          workflowName: null,
+          formType: null,
+          formid: null,
+          fieldid: null,
+          condition: null
         });
       },
       handleDelete(){
@@ -192,6 +183,22 @@
       handleClick(index){
         this.$store.commit('switch_workflowDialog');
         this.currentIndex = index;
+      },
+      handleFormidClick(index){
+        if (this.details && this.details[index] && this.details[index].workflowid) {
+          this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=formid&workflowid='+
+            this.details[index].workflowid+'&formType='+this.details[index].formType).then(response=>{
+            this.formids = response.data;
+          }).catch(function (err) {
+            console.log(err)
+          })
+        }
+      },
+      //todo 需要改成browser框，字段太多，用下拉框不方便
+      handleFieldClick(index){
+        if (this.details && this.details[index] && this.details[index].workflowid && this.details[index].formid) {
+
+        }
       }
     },
     watch:{

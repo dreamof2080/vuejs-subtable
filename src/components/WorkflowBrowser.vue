@@ -74,7 +74,7 @@
     },
     methods: {
       handleRowClick(val) {
-        this.$emit('browserClick',val);
+        this.$emit('workflowBrowserClick',val);
         this.$store.commit('switch_workflowDialog');
       },
       handleSubmit() {

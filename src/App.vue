@@ -1,28 +1,36 @@
 <template>
   <div id="app">
-    <relate-table :workflowRowData="workflowRowData"/>
-    <workflow-browser @browserClick="handleWorkflowRowData"/>
+    <relate-table :workflowRowData="workflowRowData" :fieldRowData="fieldRowData" :oid="oid"/>
+    <workflow-browser @workflowBrowserClick="handleWorkflowRowData"/>
+    <field-browser @fieldBrowserClick="handleFieldRowData"/>
   </div>
 </template>
 
 <script>
-import RelateTable from './components/RelateTable.vue'
-import WorkflowBrowser from './components/WorkflowBrowser.vue'
+import RelateTable from './components/RelateTable'
+import WorkflowBrowser from './components/WorkflowBrowser'
+import FieldBrowser from './components/FieldBrowser'
 
 export default {
   name: 'app',
   data(){
     return{
-      workflowRowData:null
+      workflowRowData:null,
+      fieldRowData:null,
+      oid:null
     }
   },
   components: {
     'relate-table': RelateTable,
-    'workflow-browser': WorkflowBrowser
+    'workflow-browser': WorkflowBrowser,
+    'field-browser':FieldBrowser,
   },
   methods:{
     handleWorkflowRowData(workflowRow){
       this.workflowRowData = workflowRow;
+    },
+    handleFieldRowData(fieldRow){
+      this.fieldRowData = fieldRow;
     },
     loaded(){
       let url = window.location.href;
@@ -31,6 +39,7 @@ export default {
         let param = paramArr[i].split("=");
         if (param.length>1){
           if (param[0].toLocaleLowerCase()=='workflowid') {
+            this.oid = param[1];
             this.$store.commit('setWorkflowId',param[1]);
           }
         }

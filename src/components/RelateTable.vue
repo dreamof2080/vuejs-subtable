@@ -1,10 +1,11 @@
 <template>
   <div class="main">
     <div class="menu">
-      <el-row>
-        <el-button type="primary" icon="el-icon-plus" size="mini" circle @click="handleAdd"></el-button>
-        <el-button type="danger" icon="el-icon-minus" size="mini" circle @click="handleDelete"></el-button>
-      </el-row>
+      <el-button-group>
+        <el-button type="primary" size="mini" @click="handleAdd">增加</el-button>
+        <el-button type="primary" size="mini" @click="handleDelete">删除</el-button>
+        <el-button type="primary" size="mini" @click="handleSave">保存</el-button>
+      </el-button-group>
     </div>
     <div class="table">
       <el-table
@@ -33,7 +34,8 @@
           <template slot-scope="scope">
             <el-input v-model="scope.row.workflowid" v-show="false" size="mini"></el-input>
             <el-input placeholder="请选择" v-model="scope.row.workflowName" size="small">
-              <el-button slot="append" icon="el-icon-search" @click="handleClick(scope.$index)" size="small"></el-button>
+              <el-button slot="append" icon="el-icon-search" @click="handleWorkflowBrowserClick(scope.$index)"
+                         size="small"></el-button>
             </el-input>
           </template>
         </el-table-column>
@@ -58,7 +60,8 @@
               label="表单名称"
               width="180">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.formid" placeholder="请选择" size="small" @focus="handleFormidClick(scope.$index)">
+              <el-select v-model="scope.row.formid" placeholder="请选择" size="small"
+                         @focus="handleFormidClick(scope.$index)">
                 <el-option
                     v-for="item in formids"
                     :key="item.value"
@@ -74,14 +77,11 @@
             label="关联字段"
             width="180">
           <template slot-scope="scope">
-            <el-select v-model="scope.row.fieldid" placeholder="请选择" size="small" @focus="handleFieldClick(scope.$index)">
-              <el-option
-                  v-for="item in fieldids"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-              </el-option>
-            </el-select>
+            <el-input v-model="scope.row.fieldid" v-show="false" size="mini"></el-input>
+            <el-input placeholder="请选择" v-model="scope.row.fieldName" size="small">
+              <el-button slot="append" icon="el-icon-search" @click="handleFieldBrowserClick(scope.$index)"
+                         size="small"></el-button>
+            </el-input>
           </template>
         </el-table-column>
         <el-table-column
@@ -103,61 +103,34 @@
 
 <script>
   export default {
-    props:['workflowRowData'],
+    props: ['workflowRowData', 'fieldRowData','oid'],
     data() {
       return {
-        details: [{
-          id:1,
-          workflowid: '',
-          workflowName:'',
-          formType: 1,
-          formid: '111',
-          fieldid: '111',
-          condition: 'requestbase.isdelete=0'
-        }, {
-          id:2,
-          workflowid: '',
-          workflowName:'',
-          formType: 0,
-          formid: '111',
-          fieldid: '222',
-          condition: 'requestbase.isdelete=0'
-        }, {
-          id:3,
-          workflowid: '',
-          workflowName:'',
-          formType: 0,
-          formid: '111',
-          fieldid: '111',
-          condition: 'requestbase.isdelete=0'
-        }],
-        formTypeOptions:[
+        details: [],
+        formTypeOptions: [
           {
-            value:0,
-            label:'主表'
+            value: 0,
+            label: '主表'
           },
           {
-            value:1,
-            label:'子表'
+            value: 1,
+            label: '子表'
           }
         ],
         multipleSelection: [],
-        formids:[],
-        fieldids:[
-          {
-            value:'111',
-            label:'字段1'
-          },
-          {
-            value:'222',
-            label:'字段2'
-          }
-        ],
-        deleteIds:[],
-        currentIndex:null
+        formids: [],
+        deleteIds: [],
+        currentIndex: null
       }
     },
-    methods:{
+    methods: {
+      loadData(oid){
+        this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=load&oid=' + oid).then(response => {
+          this.details = response.data;
+        }).catch(err => {
+          console.log(err)
+        })
+      },
       handleAdd() {
         this.details.push({
           id: null,
@@ -165,64 +138,90 @@
           workflowName: null,
           formType: null,
           formid: null,
+          formName:null,
           fieldid: null,
+          fieldName: null,
           condition: null
         });
       },
-      handleDelete(){
-        this.multipleSelection.forEach(element=>{
-          if (this.deleteIds.indexOf(element.id)===-1){
+      handleDelete() {
+        this.multipleSelection.forEach(element => {
+          if (this.deleteIds.indexOf(element.id) === -1) {
             this.deleteIds.push(element.id);
           }
-          this.details.splice(this.details.indexOf(element),1)
+          this.details.splice(this.details.indexOf(element), 1)
         })
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleClick(index){
+      handleWorkflowBrowserClick(index) {
         this.$store.commit('switch_workflowDialog');
         this.currentIndex = index;
       },
-      handleFormidClick(index){
+      handleFieldBrowserClick(index) {
+        this.$store.commit('switch_FieldDialog', this.details[index].formid);
+        this.currentIndex = index;
+      },
+      handleFormidClick(index) {
         if (this.details && this.details[index] && this.details[index].workflowid) {
-          this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=formid&workflowid='+
-            this.details[index].workflowid+'&formType='+this.details[index].formType).then(response=>{
+          this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=formid&workflowid=' +
+            this.details[index].workflowid + '&formType=' + this.details[index].formType).then(response => {
             this.formids = response.data;
-          }).catch(function (err) {
+          }).catch(err => {
             console.log(err)
           })
         }
       },
-      //todo 需要改成browser框，字段太多，用下拉框不方便
-      handleFieldClick(index){
-        if (this.details && this.details[index] && this.details[index].workflowid && this.details[index].formid) {
-
+      handleSave() {
+        if (this.details.length > 0) {
+          let params = new URLSearchParams();
+          params.append('workflowid', this.$store.state.globalStore.workflowid);
+          params.append('list', JSON.stringify(this.details));
+          this.axios.post('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=save',params,
+            {headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}}).then(response => {
+            this.$message.info("主人，保存成功！");
+          }).catch(error => {
+            console.log(error);
+          })
+        } else {
+          this.showMessage()
         }
+      },
+      showMessage() {
+        this.$message.error('主人，小的发现无数据可提交哦');
       }
     },
-    watch:{
-      workflowRowData:function (newData,oldData) {
+    watch: {
+      workflowRowData: function (newData, oldData) {
         this.details[this.currentIndex].workflowid = newData.workflowid;
         this.details[this.currentIndex].workflowName = newData.workflowName;
+      },
+      fieldRowData: function (newData, oldData) {
+        this.details[this.currentIndex].fieldid = newData.fieldid;
+        this.details[this.currentIndex].fieldName = newData.fieldName;
+      },
+      oid:function (newData,oldData) {
+        this.loadData(newData);
       }
     }
   }
 </script>
 
 <style scoped>
-  .main{
-    width:80%;
-    margin:0 auto;
+  .main {
+    width: 80%;
+    margin: 0 auto;
     border-radius: 5px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
-  .menu{
-    float: left;
-    margin: 20px 0 10px 30px;
 
+  .menu {
+    float: right;
+    margin: 20px 30px 10px 0;
   }
-  .table{
-    margin:10px;
+
+  .table {
+    margin: 10px;
   }
 </style>

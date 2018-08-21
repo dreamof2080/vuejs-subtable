@@ -96,10 +96,10 @@
     computed:{
       show:{
         get(){
-          if (this.$store.state.workflowBrowser.show && this.tableList.length==0) {
+          if (this.$store.state.workflowStore.show && this.tableList.length==0) {
             this.handleSubmit();
           }
-          return this.$store.state.workflowBrowser.show;
+          return this.$store.state.workflowStore.show;
         },
         set(){
           this.pageInfo.currentPage = 1;

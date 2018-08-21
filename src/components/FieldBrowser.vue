@@ -67,25 +67,22 @@
       },
       handleSubmit() {
         this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=fieldid&formid=' +
-          this.$store.state.fieldBrowser.formid
+          this.$store.state.fieldStore.formid
           + '&fieldName='
           + encodeURI(encodeURI(this.searchForm.searchFieldName)) + '&labelName=' + encodeURI(encodeURI(this.searchForm.searchLabelName))).then(response => {
           this.tableList = response.data.detail;
         }).catch(function (err) {
           console.log(err)
         })
-      },
-      handleCurrentPage() {
-        this.handleSubmit();
       }
     },
     computed: {
       show: {
         get() {
-          if (this.$store.state.fieldBrowser.show) {
+          if (this.$store.state.fieldStore.show) {
             this.handleSubmit();
           }
-          return this.$store.state.fieldBrowser.show;
+          return this.$store.state.fieldStore.show;
         },
         set() {
           this.$store.commit('switch_FieldDialog');

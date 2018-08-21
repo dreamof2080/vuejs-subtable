@@ -1,17 +1,21 @@
 <template>
   <div class="main">
-    <div class="menu">
-      <el-button-group>
-        <el-button type="primary" size="mini" @click="handleAdd">增加</el-button>
-        <el-button type="primary" size="mini" @click="handleDelete">删除</el-button>
-        <el-button type="primary" size="mini" @click="handleSave">保存</el-button>
-      </el-button-group>
+    <div class="header">
+      <div class="titleTag">
+        <el-tag size="medium">{{flowName}} 一 流程关联设置</el-tag>
+      </div>
+      <div class="menu">
+        <el-button-group>
+          <el-button type="primary" size="mini" @click="handleAdd">增加</el-button>
+          <el-button type="primary" size="mini" @click="handleDelete">删除</el-button>
+          <el-button type="primary" size="mini" @click="handleSave">保存</el-button>
+        </el-button-group>
+      </div>
     </div>
     <div class="table">
       <el-table
           :data="details"
           height="600"
-          border
           style="width: 100%"
           @selection-change="handleSelectionChange">
         <el-table-column
@@ -60,15 +64,11 @@
               label="表单名称"
               width="180">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.formid" placeholder="请选择" size="small"
-                         @focus="handleFormidClick(scope.$index)">
-                <el-option
-                    v-for="item in formids"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-              </el-select>
+              <el-input v-model="scope.row.formid" v-show="false" size="mini"></el-input>
+              <el-input placeholder="请选择" v-model="scope.row.formName" size="small">
+                <el-button slot="append" icon="el-icon-search" @click="handleFormBrowserClick(scope.$index)"
+                           size="small"></el-button>
+              </el-input>
             </template>
           </el-table-column>
         </el-table-column>
@@ -103,7 +103,7 @@
 
 <script>
   export default {
-    props: ['workflowRowData', 'fieldRowData','oid'],
+    props: ['workflowRowData', 'fieldRowData','formRowData','oid'],
     data() {
       return {
         details: [],
@@ -120,13 +120,15 @@
         multipleSelection: [],
         formids: [],
         deleteIds: [],
-        currentIndex: null
+        currentIndex: null,
+        flowName:null,
       }
     },
     methods: {
       loadData(oid){
         this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=load&oid=' + oid).then(response => {
-          this.details = response.data;
+          this.details = response.data.detail;
+          this.flowName = response.data.flowName;
         }).catch(err => {
           console.log(err)
         })
@@ -146,11 +148,11 @@
       },
       handleDelete() {
         this.multipleSelection.forEach(element => {
-          if (this.deleteIds.indexOf(element.id) === -1) {
+          if (element.id && this.deleteIds.indexOf(element.id) === -1) {
             this.deleteIds.push(element.id);
           }
           this.details.splice(this.details.indexOf(element), 1)
-        })
+        });
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
@@ -159,25 +161,20 @@
         this.$store.commit('switch_workflowDialog');
         this.currentIndex = index;
       },
+      handleFormBrowserClick(index) {
+        this.$store.commit('switch_FormDialog',{workflowid:this.details[index].workflowid,formType:this.details[index].formType});
+        this.currentIndex = index;
+      },
       handleFieldBrowserClick(index) {
         this.$store.commit('switch_FieldDialog', this.details[index].formid);
         this.currentIndex = index;
-      },
-      handleFormidClick(index) {
-        if (this.details && this.details[index] && this.details[index].workflowid) {
-          this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=formid&workflowid=' +
-            this.details[index].workflowid + '&formType=' + this.details[index].formType).then(response => {
-            this.formids = response.data;
-          }).catch(err => {
-            console.log(err)
-          })
-        }
       },
       handleSave() {
         if (this.details.length > 0) {
           let params = new URLSearchParams();
           params.append('workflowid', this.$store.state.globalStore.workflowid);
           params.append('list', JSON.stringify(this.details));
+          params.append('deleteList',JSON.stringify(this.deleteIds));
           this.axios.post('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=save',params,
             {headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}}).then(response => {
             this.$message.info("主人，保存成功！");
@@ -196,6 +193,10 @@
       workflowRowData: function (newData, oldData) {
         this.details[this.currentIndex].workflowid = newData.workflowid;
         this.details[this.currentIndex].workflowName = newData.workflowName;
+      },
+      formRowData: function (newData, oldData) {
+        this.details[this.currentIndex].formid = newData.formid;
+        this.details[this.currentIndex].formName = newData.formName;
       },
       fieldRowData: function (newData, oldData) {
         this.details[this.currentIndex].fieldid = newData.fieldid;
@@ -216,12 +217,18 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
 
+  .titleTag{
+    float:left;
+    margin: 20px 0 10px 10px;
+  }
+
   .menu {
     float: right;
-    margin: 20px 30px 10px 0;
+    margin: 20px 10px 10px 0;
   }
 
   .table {
     margin: 10px;
+    padding-bottom: 10px;
   }
 </style>

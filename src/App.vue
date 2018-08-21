@@ -1,7 +1,8 @@
 <template>
   <div id="app">
-    <relate-table :workflowRowData="workflowRowData" :fieldRowData="fieldRowData" :oid="oid"/>
+    <relate-table :workflowRowData="workflowRowData" :formRowData="formRowData" :fieldRowData="fieldRowData" :oid="oid"/>
     <workflow-browser @workflowBrowserClick="handleWorkflowRowData"/>
+    <form-browser @formBrowserClick="handleFormRowData"/>
     <field-browser @fieldBrowserClick="handleFieldRowData"/>
   </div>
 </template>
@@ -9,6 +10,7 @@
 <script>
 import RelateTable from './components/RelateTable'
 import WorkflowBrowser from './components/WorkflowBrowser'
+import FormBrowser from './components/FormBrowser'
 import FieldBrowser from './components/FieldBrowser'
 
 export default {
@@ -16,6 +18,7 @@ export default {
   data(){
     return{
       workflowRowData:null,
+      formRowData:null,
       fieldRowData:null,
       oid:null
     }
@@ -23,11 +26,15 @@ export default {
   components: {
     'relate-table': RelateTable,
     'workflow-browser': WorkflowBrowser,
+    'form-browser':FormBrowser,
     'field-browser':FieldBrowser,
   },
   methods:{
     handleWorkflowRowData(workflowRow){
       this.workflowRowData = workflowRow;
+    },
+    handleFormRowData(formRow){
+      this.formRowData = formRow;
     },
     handleFieldRowData(fieldRow){
       this.fieldRowData = fieldRow;

@@ -5,6 +5,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import 'url-search-params-polyfill';
 
 Vue.config.productionTip = false;
 

@@ -34,7 +34,7 @@
         <el-table-column
             align="center"
             label="关联流程"
-            width="220">
+            width="250">
           <template slot-scope="scope">
             <el-input v-model="scope.row.workflowid" v-show="false" size="mini"></el-input>
             <el-input placeholder="请选择" v-model="scope.row.workflowName" size="small">
@@ -47,7 +47,7 @@
           <el-table-column
               align="center"
               label="主表/子表"
-              width="180">
+              width="200">
             <template slot-scope="scope">
               <el-select v-model="scope.row.formType" placeholder="请选择" size="small">
                 <el-option
@@ -62,7 +62,7 @@
           <el-table-column
               align="center"
               label="表单名称"
-              width="180">
+              width="200">
             <template slot-scope="scope">
               <el-input v-model="scope.row.formid" v-show="false" size="mini"></el-input>
               <el-input placeholder="请选择" v-model="scope.row.formName" size="small">
@@ -75,7 +75,7 @@
         <el-table-column
             align="center"
             label="关联字段"
-            width="180">
+            width="200">
           <template slot-scope="scope">
             <el-input v-model="scope.row.fieldid" v-show="false" size="mini"></el-input>
             <el-input placeholder="请选择" v-model="scope.row.fieldName" size="small">
@@ -89,8 +89,9 @@
             label="关联条件">
           <template slot-scope="scope">
             <el-input
+                :disabled="true"
                 size="small"
-                placeholder="请输入内容"
+                placeholder="开发中，敬请期待"
                 v-model="scope.row.condition"
                 clearable>
             </el-input>
@@ -103,7 +104,7 @@
 
 <script>
   export default {
-    props: ['workflowRowData', 'fieldRowData','formRowData','oid'],
+    props: ['workflowRowData', 'fieldRowData', 'formRowData', 'oid'],
     data() {
       return {
         details: [],
@@ -121,11 +122,11 @@
         formids: [],
         deleteIds: [],
         currentIndex: null,
-        flowName:null,
+        flowName: null,
       }
     },
     methods: {
-      loadData(oid){
+      loadData(oid) {
         this.axios.get('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=load&oid=' + oid).then(response => {
           this.details = response.data.detail;
           this.flowName = response.data.flowName;
@@ -140,7 +141,7 @@
           workflowName: null,
           formType: null,
           formid: null,
-          formName:null,
+          formName: null,
           fieldid: null,
           fieldName: null,
           condition: null
@@ -162,7 +163,10 @@
         this.currentIndex = index;
       },
       handleFormBrowserClick(index) {
-        this.$store.commit('switch_FormDialog',{workflowid:this.details[index].workflowid,formType:this.details[index].formType});
+        this.$store.commit('switch_FormDialog', {
+          workflowid: this.details[index].workflowid,
+          formType: this.details[index].formType
+        });
         this.currentIndex = index;
       },
       handleFieldBrowserClick(index) {
@@ -170,12 +174,12 @@
         this.currentIndex = index;
       },
       handleSave() {
-        if (this.details.length > 0) {
+        if (this.details.length > 0 || this.deleteIds.length > 0) {
           let params = new URLSearchParams();
           params.append('workflowid', this.$store.state.globalStore.workflowid);
           params.append('list', JSON.stringify(this.details));
-          params.append('deleteList',JSON.stringify(this.deleteIds));
-          this.axios.post('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=save',params,
+          params.append('deleteList', JSON.stringify(this.deleteIds));
+          this.axios.post('/ServiceAction/com.eweaver.workflow.workflow.servlet.WorkflowRelateAction?action=save', params,
             {headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}}).then(response => {
             this.$message.info("主人，保存成功！");
           }).catch(error => {
@@ -202,7 +206,7 @@
         this.details[this.currentIndex].fieldid = newData.fieldid;
         this.details[this.currentIndex].fieldName = newData.fieldName;
       },
-      oid:function (newData,oldData) {
+      oid: function (newData, oldData) {
         this.loadData(newData);
       }
     }
@@ -217,8 +221,8 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
 
-  .titleTag{
-    float:left;
+  .titleTag {
+    float: left;
     margin: 20px 0 10px 10px;
   }
 
